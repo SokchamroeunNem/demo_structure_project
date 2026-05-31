@@ -1,0 +1,40 @@
+package com.example.demo.graphs
+
+
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.navigation
+import com.example.demo.presentation.forgotpasswordscreen.ForgotPasswordScreen
+import com.example.demo.presentation.login.LoginScreen
+import com.example.demo.presentation.registerscreen.RegisterScreen
+
+
+fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
+    navigation(
+        route = Graph.AUTHENTICATION,
+        startDestination = AuthScreen.Login.route
+    ) {
+
+        composable(route = AuthScreen.SPLASH.route) {
+            //SplashScreen(navController = navController)
+        }
+
+        composable(route = AuthScreen.Login.route) {
+            LoginScreen(navController = navController)
+        }
+        composable(route = AuthScreen.SignUp.route) {
+            RegisterScreen(navController = navController)
+        }
+        composable(route = AuthScreen.Forgot.route) {
+            ForgotPasswordScreen(navController = navController)
+        }
+    }
+}
+
+sealed class AuthScreen(val route: String) {
+    object SPLASH : AuthScreen(route = "SPLASH")
+    object Login : AuthScreen(route = "LOGIN")
+    object SignUp : AuthScreen(route = "SIGN_UP")
+    object Forgot : AuthScreen(route = "FORGOT")
+}

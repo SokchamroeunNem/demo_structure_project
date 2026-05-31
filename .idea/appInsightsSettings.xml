@@ -22,7 +22,7 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.emailverificationauthenticationviaapi" />
+                  <option name="appId" value="com.clean_architecture.demo" />
                   <option name="mobileSdkAppId" value="1:471365326573:android:bacaa7ce9a462e25765ee4" />
                   <option name="projectId" value="fir-signin-up-email" />
                   <option name="projectNumber" value="471365326573" />

@@ -1,7 +1,13 @@
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
+import org.gradle.kotlin.dsl.firebaseAppDistribution
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.firebase.appdistribution)
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
     id("kotlin-parcelize")
@@ -9,12 +15,18 @@ plugins {
     id("com.onesignal.androidsdk.onesignal-gradle-plugin")
 }
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.emailverificationauthenticationviaapi"
+    namespace = "com.example.demo"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.emailverificationauthenticationviaapi"
+        applicationId = "com.clean_architecture.demo"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -23,22 +35,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         android.buildFeatures.buildConfig = true
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
+        //buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
 
         vectorDrawables {
             useSupportLibrary = true
         }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -49,14 +52,110 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = file(keystoreProperties.getProperty("storeFile", "release.jks"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+        getByName("debug") {
+            // By default uses the local debug keystore
         }
     }
+
+    flavorDimensions.add("environment")
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            resValue("string", "app_name", "https://jsonplaceholder.typicode.com/dev")
+            buildConfigField("String", "ENVIRONMENT_NAME", "\"DEV\"")
+        }
+
+        create("staging") {
+            dimension = "environment"
+
+            resValue(
+                "string",
+                "app_name",
+                "https://jsonplaceholder.typicode.com/"
+            )
+
+            buildConfigField(
+                "String",
+                "ENVIRONMENT_NAME",
+                "\"https://jsonplaceholder.typicode.com/\""
+            )
+        }
+
+        create("preprod") {
+            dimension = "environment"
+            resValue("string", "app_name", "MyApp PreProd")
+            resValue("string", "app_name", "https://jsonplaceholder.typicode.com/preprod")
+            buildConfigField("String", "ENVIRONMENT_NAME", "\"preprod\"")
+            create("production") {
+                dimension = "environment"
+                resValue("string", "app_name", "https://jsonplaceholder.typicode.com/production")
+                buildConfigField("String", "ENVIRONMENT_NAME", "\"production\"")
+            }
+        }
+
+        buildTypes {
+            release {
+                isMinifyEnabled = true
+                isShrinkResources = true
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+                signingConfig = signingConfigs.getByName("release")
+
+                firebaseAppDistribution {
+                    artifactType = "APK"
+                    releaseNotes = "New automatic deployment from CI"
+
+                    val credencesFile = rootProject.file("firebase-credentials.json")
+                    if (credencesFile.exists()) {
+                        serviceCredentialsFile = credencesFile.absolutePath
+                    } else {
+                        // Fallbacks: you can also set FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS environment variables.
+                    }
+                }
+            }
+            debug {
+                isDebuggable = true
+                isMinifyEnabled = false
+                signingConfig = signingConfigs.getByName("debug")
+
+                firebaseAppDistribution {
+                    artifactType = "APK"
+                    releaseNotes = "New automatic debug deployment from CI"
+
+                    val credencesFile = rootProject.file("firebase-credentials.json")
+                    if (credencesFile.exists()) {
+                        serviceCredentialsFile = credencesFile.absolutePath
+                    } else {
+                        // Fallbacks: you can also set FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS environment variables.
+                    }
+                }
+            }
+        }
+
+        composeOptions {
+            kotlinCompilerExtensionVersion = "1.5.1"
+        }
+        packaging {
+            resources {
+                excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            }
+        }
+    }
+
+
 }
 
 dependencies {

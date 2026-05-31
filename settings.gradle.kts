@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Blogfy API"
+rootProject.name = "Structure Clean Architecture"
 include(":app")
  
