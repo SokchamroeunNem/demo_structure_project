@@ -1,5 +1,4 @@
 import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
-import org.gradle.kotlin.dsl.firebaseAppDistribution
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -40,6 +39,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17"
+            }
+        }
     }
 
     compileOptions {
@@ -74,8 +78,12 @@ android {
             dimension = "environment"
             resValue("string", "app_name", "https://jsonplaceholder.typicode.com/dev")
             buildConfigField("String", "ENVIRONMENT_NAME", "\"DEV\"")
+            externalNativeBuild {
+                cmake {
+                    arguments("-DFLAVOR=dev")
+                }
+            }
         }
-
         create("staging") {
             dimension = "environment"
 
@@ -90,17 +98,31 @@ android {
                 "ENVIRONMENT_NAME",
                 "\"https://jsonplaceholder.typicode.com/\""
             )
+            externalNativeBuild {
+                cmake {
+                    arguments("-DFLAVOR=staging")
+                }
+            }
         }
-
         create("preprod") {
             dimension = "environment"
             resValue("string", "app_name", "MyApp PreProd")
             resValue("string", "app_name", "https://jsonplaceholder.typicode.com/preprod")
             buildConfigField("String", "ENVIRONMENT_NAME", "\"preprod\"")
-            create("production") {
-                dimension = "environment"
-                resValue("string", "app_name", "https://jsonplaceholder.typicode.com/production")
-                buildConfigField("String", "ENVIRONMENT_NAME", "\"production\"")
+            externalNativeBuild {
+                cmake {
+                    arguments("-DFLAVOR=preprod")
+                }
+            }
+        }
+        create("production") {
+            dimension = "environment"
+            resValue("string", "app_name", "https://jsonplaceholder.typicode.com/production")
+            buildConfigField("String", "ENVIRONMENT_NAME", "\"production\"")
+            externalNativeBuild {
+                cmake {
+                    arguments("-DFLAVOR=production")
+                }
             }
         }
 
@@ -154,8 +176,12 @@ android {
             }
         }
     }
-
-
+    externalNativeBuild {
+        cmake {
+            path = file("CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 }
 
 dependencies {
@@ -178,7 +204,7 @@ dependencies {
 
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
-    implementation( libs.androidx.material.icons.extended)
+    implementation(libs.androidx.material.icons.extended)
 
     //Dagger - Hilt
     implementation(libs.hilt.android)
