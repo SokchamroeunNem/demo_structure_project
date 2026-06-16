@@ -25,7 +25,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.clean_architecture.demo"
+        applicationId = "com.example.demo"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

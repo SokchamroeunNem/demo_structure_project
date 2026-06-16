@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:471365326573:android:bacaa7ce9a462e25765ee4",
         "android_client_info": {
-          "package_name": "com.clean_architecture.demo"
+          "package_name": "com.example.demo"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "471365326573-098d42nlv7kgfin51nhpahabuhursu5l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.clean_architecture.demo",
+            "package_name": "com.example.demo",
             "certificate_hash": "06d242492d949b8ddff02b389cab594c8cb2c2eb"
           }
         },
